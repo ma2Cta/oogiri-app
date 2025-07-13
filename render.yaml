@@ -13,18 +13,26 @@ services:
           name: oogiri-db
           property: connectionString
       - key: NEXTAUTH_URL
-        value: https://oogiri-app.onrender.com
+        fromService:
+          type: web
+          name: oogiri-app
+          property: host
       - key: NEXTAUTH_SECRET
         generateValue: true
-      # BASIC認証設定は、Render.comダッシュボードで手動設定:
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: WEBSOCKET_PORT
+        value: 3000
+      # Render.comダッシュボードで手動設定する機密情報:
       # - BASIC_AUTH_ENABLED (true/false)
       # - BASIC_AUTH_USER
       # - BASIC_AUTH_PASSWORD
-      # Google認証設定は、Render.comダッシュボードで手動設定:
       # - GOOGLE_CLIENT_ID
       # - GOOGLE_CLIENT_SECRET
-      # WebSocket設定は、Render.comダッシュボードで手動設定:
-      # - WEBSOCKET_URL (wss://oogiri-app.onrender.com)
+      # - WEBSOCKET_URL (fromService host property)
+      # - NEXT_PUBLIC_APP_PASSWORD (パスワード保護用)
     healthCheckPath: /api/health
 
 databases:
