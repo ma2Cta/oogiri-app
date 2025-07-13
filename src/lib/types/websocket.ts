@@ -17,19 +17,30 @@ export interface GameMessage {
 export interface JoinMessage extends Omit<GameMessage, 'type' | 'data'> {
   type: 'join';
   userId: string;
-  data?: never;
+  data?: {
+    success?: boolean;
+    userId?: string;
+    hasAnswered?: boolean;
+    hasVoted?: boolean;
+    connectedUsers?: string[];
+  };
 }
 
 export interface LeaveMessage extends Omit<GameMessage, 'type' | 'data'> {
   type: 'leave';
   userId: string;
-  data?: never;
+  data?: {
+    userId?: string;
+    hasAnswered?: boolean;
+    hasVoted?: boolean;
+  };
 }
 
 export interface AnswerMessage extends Omit<GameMessage, 'type'> {
   type: 'answer';
   userId: string;
   data: {
+    userId: string;
     hasAnswered: boolean;
   };
 }
@@ -38,6 +49,7 @@ export interface VoteMessage extends Omit<GameMessage, 'type'> {
   type: 'vote';
   userId: string;
   data: {
+    userId: string;
     hasVoted: boolean;
   };
 }
@@ -96,6 +108,21 @@ export interface ErrorMessage extends Omit<GameMessage, 'type'> {
   };
 }
 
+export interface ConnectMessage extends Omit<GameMessage, 'type'> {
+  type: 'connect';
+  data: {
+    success: boolean;
+  };
+}
+
+export interface DisconnectMessage extends Omit<GameMessage, 'type'> {
+  type: 'disconnect';
+  data: {
+    code?: number;
+    reason?: string;
+  };
+}
+
 // Union型でメッセージタイプを統合
 export type WebSocketMessage = 
   | JoinMessage 
@@ -106,7 +133,9 @@ export type WebSocketMessage =
   | QuestionMessage 
   | ResultsMessage 
   | ScoreUpdateMessage
-  | ErrorMessage;
+  | ErrorMessage
+  | ConnectMessage
+  | DisconnectMessage;
 
 // 接続クライアント
 export interface ConnectedClient {

@@ -7,10 +7,10 @@ import { eq } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { roomId: string } }
+  context: { params: Promise<{ roomId: string }> }
 ) {
   try {
-    const { roomId } = await params;
+    const { roomId } = await context.params;
     
     const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId)).limit(1);
     
@@ -29,7 +29,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { roomId: string } }
+  context: { params: Promise<{ roomId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -38,7 +38,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { roomId } = await params;
+    const { roomId } = await context.params;
     
     const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId)).limit(1);
     

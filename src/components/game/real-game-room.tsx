@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { GameWebSocketClient } from '@/lib/websocket-client';
-import { Theater, MessageCircle, PartyPopper, Trophy, Users, FileText, CheckCircle, Clock, Vote, Medal, Award } from 'lucide-react';
+import { Theater, MessageCircle, PartyPopper, Trophy, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
+import { JoinMessage, LeaveMessage, AnswerMessage, VoteMessage, ErrorMessage, GameStateMessage, QuestionMessage, ResultsMessage } from '@/lib/types/websocket';
 
 interface Player {
   id: string;
@@ -117,42 +118,62 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
 
     // ゲームセッション参加イベント
     client.on('join', (message) => {
-      if (message.data?.success) {
+      const joinMessage = message as JoinMessage;
+      if (joinMessage.data?.success) {
         console.log('Joined game session');
         // 参加成功時も接続状態を確認
         setConnected(client.isConnected());
       }
       // プレイヤー参加の場合
-      if (message.data?.userId && message.data.userId !== session.user.id) {
+      if (joinMessage.data?.userId && joinMessage.data.userId !== session.user.id) {
         fetchGameSession(); // プレイヤーリストを更新
       }
     });
 
     client.on('leave', (message) => {
-      if (message.data?.userId) {
+      const leaveMessage = message as LeaveMessage;
+      if (leaveMessage.data?.userId) {
         fetchGameSession(); // プレイヤーリストを更新
       }
     });
 
     // ゲーム状態更新
     client.on('game_state', (message) => {
-      if (message.data) {
-        setGameSession(message.data);
+      const stateMessage = message as GameStateMessage;
+      if (stateMessage.data) {
+        // GameStateMessage.dataからGameSessionに変換
+        setGameSession({
+          id: sessionId,
+          roomId: '',
+          currentRound: stateMessage.data.currentRound || 1,
+          totalRounds: stateMessage.data.totalRounds || 3,
+          status: stateMessage.data.phase,
+          startedAt: undefined,
+          endedAt: undefined
+        });
       }
     });
 
     // 質問受信
     client.on('question', (message) => {
-      if (message.data) {
-        setCurrentQuestion(message.data);
+      const questionMessage = message as QuestionMessage;
+      if (questionMessage.data) {
+        // QuestionMessage.dataからQuestionに変換
+        setCurrentQuestion({
+          id: questionMessage.data.id,
+          content: questionMessage.data.content,
+          category: questionMessage.data.category || '一般',
+          difficulty: 'medium' // デフォルト値を設定
+        });
       }
     });
 
     // 回答状況更新
     client.on('answer', (message) => {
-      if (message.data?.userId) {
+      const answerMessage = message as AnswerMessage;
+      if (answerMessage.data?.userId) {
         setPlayers(prev => prev.map(p => 
-          p.id === message.data.userId 
+          p.id === answerMessage.data.userId 
             ? { ...p, hasAnswered: true }
             : p
         ));
@@ -161,9 +182,10 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
 
     // 投票状況更新
     client.on('vote', (message) => {
-      if (message.data?.userId) {
+      const voteMessage = message as VoteMessage;
+      if (voteMessage.data?.userId) {
         setPlayers(prev => prev.map(p => 
-          p.id === message.data.userId 
+          p.id === voteMessage.data.userId 
             ? { ...p, hasVoted: true }
             : p
         ));
@@ -172,21 +194,22 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
 
     // 結果受信
     client.on('results', (message) => {
-      if (message.data) {
-        setAnswers(message.data.answers || []);
-        setPlayers(message.data.players || []);
+      const resultsMessage = message as ResultsMessage;
+      if (resultsMessage.data) {
+        // ResultsMessage.dataからAnswerとPlayerに変換
+        const answers = resultsMessage.data.answers?.map(answer => ({
+          id: answer.id,
+          userId: answer.userId,
+          content: answer.content,
+          votes: answer.votes,
+          submittedAt: ''
+        })) || [];
+        setAnswers(answers);
+        // プレイヤーリストは再取得した方が確実
+        fetchGameSession();
       }
     });
 
-    // ゲーム状態更新
-    client.on('game_state', (message) => {
-      if (message.data) {
-        // ゲーム状態に応じて必要な状態を更新
-        console.log('Game state updated:', message.data);
-        setGameSession(message.data);
-        fetchGameSession(); // 最新の状態を再取得
-      }
-    });
 
     // スコア更新イベント
     client.on('score_update', (message) => {
@@ -197,10 +220,11 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
 
     // エラーハンドリング
     client.on('error', (message) => {
-      console.error('WebSocket error:', message.data?.error);
+      const errorMessage = message as ErrorMessage;
+      console.error('WebSocket error:', errorMessage.data?.error);
       // 結果表示中はWebSocketエラーを無視
       if (!gameSession || gameSession.status !== 'results') {
-        setError(message.data?.error || 'WebSocket error');
+        setError(errorMessage.data?.error || 'WebSocket error');
       }
     });
 
@@ -225,7 +249,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
 
     let currentClient: GameWebSocketClient | null = null;
     
-    const cleanup = initializeWebSocket().then(client => {
+    initializeWebSocket().then(client => {
       currentClient = client;
     });
 

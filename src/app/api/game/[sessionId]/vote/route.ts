@@ -29,8 +29,7 @@ async function calculateAndUpdateScores(sessionId: string, roundId: string) {
       await db
         .update(playerSessions)
         .set({
-          score: sql`${playerSessions.score} + ${scoreToAdd}`,
-          updatedAt: new Date()
+          score: sql`${playerSessions.score} + ${scoreToAdd}`
         })
         .where(and(
           eq(playerSessions.sessionId, sessionId),
@@ -89,10 +88,10 @@ async function calculateAndUpdateScores(sessionId: string, roundId: string) {
         hasWinner: !!roundWinner
       });
     } catch (wsError) {
-      logger.error('Failed to broadcast score update via WebSocket', {
+      logger.error('Failed to broadcast score update via WebSocket', 
+        wsError instanceof Error ? wsError : new Error('Unknown WebSocket error'), {
         sessionId,
-        roundId,
-        error: wsError instanceof Error ? wsError.message : 'Unknown WebSocket error'
+        roundId
       });
     }
 
@@ -108,10 +107,10 @@ async function calculateAndUpdateScores(sessionId: string, roundId: string) {
       resultsCount: voteResults.length
     });
   } catch (error) {
-    logger.error('Failed to calculate scores', {
+    logger.error('Failed to calculate scores', 
+      error instanceof Error ? error : new Error('Unknown error'), {
       sessionId,
-      roundId,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      roundId
     });
     throw error;
   }
@@ -119,9 +118,8 @@ async function calculateAndUpdateScores(sessionId: string, roundId: string) {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  context: { params: Promise<{ sessionId: string }> }
 ) {
-  let sessionId: string;
   try {
     const session = await getServerSession(authOptions);
     
@@ -129,8 +127,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const resolvedParams = await params;
-    sessionId = resolvedParams.sessionId;
+    const resolvedParams = await context.params;
+    const sessionId = resolvedParams.sessionId;
     const body = await request.json();
     const { answerId } = body;
 
@@ -213,8 +211,7 @@ export async function POST(
       
       await db.update(gameSessions)
         .set({ 
-          status: 'results',
-          updatedAt: new Date()
+          status: 'results'
         })
         .where(eq(gameSessions.id, sessionId));
       

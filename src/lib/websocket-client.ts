@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GameMessage } from './websocket-server';
+import { GameMessage, JoinMessage, ErrorMessage } from './types/websocket';
 
 export type GameEventHandler = (message: GameMessage) => void;
 
@@ -279,19 +279,22 @@ export function useGameWebSocket(sessionId: string, userId: string) {
     const wsClient = new GameWebSocketClient(sessionId, userId);
     
     wsClient.on('join', (message) => {
-      if (message.data?.success) {
+      const joinMessage = message as JoinMessage;
+      if (joinMessage.data?.success) {
         setConnected(true);
         setError(null);
       }
     });
 
     wsClient.on('error', (message) => {
-      setError(message.data?.error || 'Unknown error');
+      const errorMessage = message as ErrorMessage;
+      setError(errorMessage.data?.error || 'Unknown error');
     });
 
     wsClient.on('connection_failed', (message) => {
+      const errorMessage = message as ErrorMessage;
       setConnected(false);
-      setError(message.data?.error || 'Connection failed');
+      setError(errorMessage.data?.error || 'Connection failed');
     });
 
     wsClient.connect().catch(err => {
