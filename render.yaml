@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: oogiri-app
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oogiri-db
+          property: connectionString
+      - key: NEXTAUTH_URL
+        value: https://oogiri-app.onrender.com
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      # BASIC認証設定は、Render.comダッシュボードで手動設定:
+      # - BASIC_AUTH_ENABLED (true/false)
+      # - BASIC_AUTH_USER
+      # - BASIC_AUTH_PASSWORD
+      # Google認証設定は、Render.comダッシュボードで手動設定:
+      # - GOOGLE_CLIENT_ID
+      # - GOOGLE_CLIENT_SECRET
+      # WebSocket設定は、Render.comダッシュボードで手動設定:
+      # - WEBSOCKET_URL (wss://oogiri-app.onrender.com)
+    healthCheckPath: /api/health
+
+databases:
+  - name: oogiri-db
+    databaseName: oogiri
+    user: oogiri_user
+    plan: free
