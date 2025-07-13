@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserNav } from "@/components/auth/user-nav";
 import { 
-  Theater, GamepadIcon, DoorOpen, Home, Users, 
+  Theater, GamepadIcon, DoorOpen, Home as HomeIcon, Users, 
   Edit3, Trophy, Zap, FileText, Vote, BarChart3, 
   Key, Settings, Rocket, Eye
 } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function Home() {
                 step: "1", 
                 title: "ルーム作成", 
                 description: "ルームを作成してコードを友達に共有",
-                icon: Home
+                icon: HomeIcon
               },
               { 
                 step: "2", 
