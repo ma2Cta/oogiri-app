@@ -147,10 +147,9 @@ oogiri-app/
 ├── 📁 docs/                        # プロジェクトドキュメント
 │   ├── README.md                   # ドキュメント目次
 │   ├── ARCHITECTURE.md             # アーキテクチャ詳細 (このファイル)
-│   ├── RENDER_DEPLOY.md            # Render.comデプロイガイド
-│   └── production-env.example      # 本番環境設定例
-└── 📁 deploy/                      # デプロイ関連ファイル
-    └── render.com/                 # Render.com用設定
+│   ├── DEPLOYMENT.md               # デプロイガイド (Render.com推奨)
+│   └── RENDER_DEPLOY.md            # Render.com詳細デプロイガイド
+├── 📄 render.yaml                  # Render.com デプロイ設定
 ```
 
 ---
