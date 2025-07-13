@@ -8,9 +8,8 @@ import { isValidUUID } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  context: { params: Promise<{ sessionId: string }> }
 ) {
-  let sessionId: string;
   try {
     const session = await getServerSession(authOptions);
     
@@ -18,8 +17,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const resolvedParams = await params;
-    sessionId = resolvedParams.sessionId;
+    const resolvedParams = await context.params;
+    const sessionId = resolvedParams.sessionId;
     
     if (!isValidUUID(sessionId)) {
       return NextResponse.json({ error: 'Invalid session ID' }, { status: 400 });
@@ -50,8 +49,7 @@ export async function POST(
       await db.update(gameSessions)
         .set({ 
           status: 'finished',
-          endedAt: new Date(),
-          updatedAt: new Date()
+          endedAt: new Date()
         })
         .where(eq(gameSessions.id, sessionId));
       
@@ -87,14 +85,12 @@ export async function POST(
     const [updatedGameSession] = await db.update(gameSessions)
       .set({ 
         currentRound: nextRound,
-        status: 'question',
-        updatedAt: new Date()
+        status: 'question'
       })
       .where(eq(gameSessions.id, sessionId))
       .returning();
 
-    // プレイヤーの回答・投票状態をリセット（updatedAtのみ更新）
-    // 注: hasAnswered, hasVotedはplayerSessionsテーブルにないため、フロントエンドで管理
+    // 注: プレイヤーの回答・投票状態はフロントエンドで管理
 
     console.log('Next round started', { 
       sessionId, 

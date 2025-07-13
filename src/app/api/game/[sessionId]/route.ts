@@ -7,7 +7,7 @@ import { eq, and, sql } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  context: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const resolvedParams = await params;
+    const resolvedParams = await context.params;
     const { sessionId } = resolvedParams;
     
     // ゲームセッション情報を取得
@@ -48,8 +48,19 @@ export async function GET(
     }
 
     // 現在のラウンドとお題情報を取得
-    let currentQuestion = null;
-    let currentAnswers = [];
+    let currentQuestion: {
+      id: string;
+      content: string;
+      category: string;
+      difficulty: string;
+    } | null = null;
+    let currentAnswers: Array<{
+      id: string;
+      userId: string;
+      content: string;
+      votes: number;
+      submittedAt: Date;
+    }> = [];
     
     if (gameSession.currentRound > 0) {
       const [roundData] = await db.select({

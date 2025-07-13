@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { GameWebSocketClient } from '@/lib/websocket-client';
 import { Trophy } from 'lucide-react';
+import { JoinMessage, LeaveMessage, AnswerMessage, VoteMessage, ScoreUpdateMessage, ErrorMessage } from '@/lib/types/websocket';
 
 interface Player {
   id: string;
@@ -282,12 +283,32 @@ export function OptimizedGameRoom({ sessionId }: OptimizedGameRoomProps) {
   }, [sessionId]);
 
   // プレイヤー更新ハンドラー（メモ化）
-  const handlePlayerUpdate = useCallback((message: { data: { userId: string; hasAnswered?: boolean; hasVoted?: boolean } }) => {
-    setPlayers(prev => prev.map(p => 
-      p.id === message.data.userId 
-        ? { ...p, hasAnswered: message.data.hasAnswered || p.hasAnswered, hasVoted: message.data.hasVoted || p.hasVoted }
-        : p
-    ));
+  const handlePlayerUpdate = useCallback((message: JoinMessage | LeaveMessage | AnswerMessage | VoteMessage) => {
+    const userId = message.data?.userId;
+    if (!userId) return;
+
+    setPlayers(prev => prev.map(p => {
+      if (p.id !== userId) return p;
+      
+      // メッセージタイプに応じて適切な更新を行う
+      switch (message.type) {
+        case 'answer':
+          return { ...p, hasAnswered: true };
+        case 'vote':
+          return { ...p, hasVoted: true };
+        case 'join':
+        case 'leave':
+          // JoinMessage と LeaveMessage の場合は hasAnswered と hasVoted が含まれている可能性がある
+          const joinLeaveData = message.data as JoinMessage['data'];
+          return { 
+            ...p, 
+            hasAnswered: joinLeaveData?.hasAnswered || p.hasAnswered,
+            hasVoted: joinLeaveData?.hasVoted || p.hasVoted
+          };
+        default:
+          return p;
+      }
+    }));
   }, []);
 
   // 回答送信ハンドラー（メモ化）
@@ -337,26 +358,29 @@ export function OptimizedGameRoom({ sessionId }: OptimizedGameRoomProps) {
     
     // 接続イベント
     client.on('join', (message) => {
-      if (message.data?.success) {
+      const joinMessage = message as JoinMessage;
+      if (joinMessage.data?.success) {
         setConnected(true);
-      } else if (message.data?.userId) {
-        handlePlayerUpdate(message);
+      } else if (joinMessage.data?.userId) {
+        handlePlayerUpdate(joinMessage);
       }
     });
 
-    client.on('leave', handlePlayerUpdate);
-    client.on('answer', handlePlayerUpdate);
-    client.on('vote', handlePlayerUpdate);
+    client.on('leave', (message) => handlePlayerUpdate(message as LeaveMessage));
+    client.on('answer', (message) => handlePlayerUpdate(message as AnswerMessage));
+    client.on('vote', (message) => handlePlayerUpdate(message as VoteMessage));
 
     // スコア更新イベント
     client.on('score_update', (message) => {
-      console.log('Score update received:', message.data);
+      const scoreMessage = message as ScoreUpdateMessage;
+      console.log('Score update received:', scoreMessage.data);
       // 現在のゲーム状態を再取得してスコアを最新化
       fetchGameSession();
     });
 
     client.on('error', (message) => {
-      setError(message.data?.error || 'WebSocket error');
+      const errorMessage = message as ErrorMessage;
+      setError(errorMessage.data?.error || 'WebSocket error');
     });
 
     setWsClient(client);

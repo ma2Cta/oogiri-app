@@ -8,9 +8,8 @@ import { isValidUUID, validateAndSanitizeAnswer } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  context: { params: Promise<{ sessionId: string }> }
 ) {
-  let sessionId: string;
   try {
     const session = await getServerSession(authOptions);
     
@@ -18,8 +17,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const resolvedParams = await params;
-    sessionId = resolvedParams.sessionId;
+    const resolvedParams = await context.params;
+    const sessionId = resolvedParams.sessionId;
     
     // UUID検証
     if (!isValidUUID(sessionId)) {
@@ -98,8 +97,7 @@ export async function POST(
       
       await db.update(gameSessions)
         .set({ 
-          status: nextStatus,
-          updatedAt: new Date()
+          status: nextStatus
         })
         .where(eq(gameSessions.id, sessionId));
       
@@ -114,9 +112,6 @@ export async function POST(
 
   } catch (error) {
     console.error('Answer submission error:', error);
-    if (sessionId) {
-      console.error(`Error in /api/game/${sessionId}/answer:`, error);
-    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

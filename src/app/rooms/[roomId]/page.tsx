@@ -3,9 +3,9 @@ import { UserNav } from "@/components/auth/user-nav";
 import { RoomDetail } from "@/components/rooms/room-detail";
 
 interface RoomPageProps {
-  params: {
+  params: Promise<{
     roomId: string;
-  };
+  }>;
 }
 
 export default async function RoomPage({ params }: RoomPageProps) {

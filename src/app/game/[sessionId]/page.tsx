@@ -1,9 +1,9 @@
 import { RealGameRoom } from '@/components/game/real-game-room';
 
 interface GamePageProps {
-  params: {
+  params: Promise<{
     sessionId: string;
-  };
+  }>;
 }
 
 export default async function GamePage({ params }: GamePageProps) {

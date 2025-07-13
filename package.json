@@ -24,6 +24,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@types/pg": "^8.15.4",
     "@types/ws": "^8.18.1",
+    "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "concurrently": "^9.2.0",
@@ -34,9 +35,12 @@
     "next": "15.3.5",
     "next-auth": "^4.24.11",
     "pg": "^8.16.3",
+    "postcss": "^8.5.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.3",
     "ws": "^8.18.3"
   },
@@ -45,12 +49,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
-    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   }
 }

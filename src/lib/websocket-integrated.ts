@@ -2,7 +2,7 @@
 
 import { Server as HTTPServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { GameMessage, ConnectedClient, JoinMessage } from './types/websocket';
+import { GameMessage, ConnectedClient, JoinMessage, LeaveMessage, AnswerMessage, VoteMessage } from './types/websocket';
 
 export class IntegratedWebSocketServer {
   private wss: WebSocketServer | null = null;
@@ -42,16 +42,16 @@ export class IntegratedWebSocketServer {
   private handleMessage(ws: WebSocket, message: GameMessage) {
     switch (message.type) {
       case 'join':
-        this.handleJoin(ws, message);
+        this.handleJoin(ws, message as JoinMessage);
         break;
       case 'leave':
-        this.handleLeave(ws, message);
+        this.handleLeave(ws, message as LeaveMessage);
         break;
       case 'answer':
-        this.handleAnswer(message);
+        this.handleAnswer(message as AnswerMessage);
         break;
       case 'vote':
-        this.handleVote(message);
+        this.handleVote(message as VoteMessage);
         break;
       case 'game_state':
         this.handleGameState(ws, message);
