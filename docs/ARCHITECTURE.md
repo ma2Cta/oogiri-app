@@ -62,42 +62,96 @@
 ```
 oogiri-app/
 ├── 📁 src/
-│   ├── 📁 app/                  # Next.js App Router
-│   │   ├── page.tsx            # ホームページ
-│   │   ├── layout.tsx          # グローバルレイアウト
-│   │   ├── globals.css         # グローバルスタイル
-│   │   ├── 📁 api/             # API Routes
-│   │   │   ├── 📁 auth/        # NextAuth設定
-│   │   │   ├── 📁 rooms/       # ルーム管理API
-│   │   │   ├── 📁 game/        # ゲーム進行API
-│   │   │   └── seed/           # お題データシード
-│   │   ├── 📁 auth/            # 認証ページ
-│   │   ├── 📁 rooms/           # ルーム関連ページ
-│   │   └── 📁 game/            # ゲーム画面
-│   ├── 📁 components/          # Reactコンポーネント
-│   │   ├── 📁 auth/            # 認証関連UI
-│   │   ├── 📁 game/            # ゲーム関連UI
-│   │   ├── 📁 rooms/           # ルーム関連UI
-│   │   └── 📁 ui/              # 基本UIコンポーネント
-│   └── 📁 lib/                 # ユーティリティ
-│       ├── 📁 db/              # データベース設定
-│       ├── 📁 types/           # 型定義
-│       ├── auth.ts             # NextAuth設定
-│       ├── config.ts           # 設定管理・定数
-│       ├── validation.ts       # 入力検証・サニタイゼーション
-│       ├── logger.ts           # 構造化ログシステム
-│       ├── game-logic.ts       # ゲームエンジン
-│       ├── websocket-client.ts # WebSocketクライアント
-│       └── websocket-server.ts # WebSocketサーバー設定
-├── 📄 server.js                # **カスタムサーバー (重要)**
-├── 📄 package.json             # 依存関係とスクリプト
-├── 📄 drizzle.config.ts        # DB設定
-├── 📄 docker-compose.yml       # PostgreSQL開発環境
-├── 📁 drizzle/                 # DBマイグレーション
-└── 📁 docs/                    # ドキュメント
-    ├── README.md               # ドキュメント目次
-    ├── ARCHITECTURE.md         # アーキテクチャ詳細
-    └── RENDER_DEPLOY.md        # デプロイガイド
+│   ├── 📁 app/                      # Next.js App Router
+│   │   ├── page.tsx                # ホームページ
+│   │   ├── layout.tsx              # グローバルレイアウト
+│   │   ├── globals.css             # グローバルスタイル
+│   │   ├── favicon.ico             # ファビコン
+│   │   ├── 📁 api/                 # API Routes
+│   │   │   ├── 📁 auth/            # NextAuth設定・401エラー
+│   │   │   ├── 📁 rooms/           # ルーム管理API
+│   │   │   │   ├── route.ts        # ルーム作成・一覧
+│   │   │   │   ├── join/route.ts   # ルーム参加
+│   │   │   │   └── [roomId]/       # 個別ルーム操作
+│   │   │   ├── 📁 game/            # ゲーム進行API
+│   │   │   │   └── [sessionId]/    # セッション別操作
+│   │   │   │       ├── route.ts    # ゲーム状態取得
+│   │   │   │       ├── start/      # ゲーム開始
+│   │   │   │       ├── answer/     # 回答送信
+│   │   │   │       ├── vote/       # 投票送信
+│   │   │   │       ├── phase/      # フェーズ切り替え
+│   │   │   │       └── next-round/ # 次ラウンド
+│   │   │   └── 📁 questions/       # お題管理
+│   │   │       └── seed/           # お題データシード
+│   │   ├── 📁 auth/                # 認証ページ
+│   │   │   └── signin/             # サインインページ
+│   │   ├── 📁 rooms/               # ルーム関連ページ
+│   │   │   ├── page.tsx            # ルーム一覧
+│   │   │   ├── create/             # ルーム作成
+│   │   │   └── [roomId]/           # ルーム詳細
+│   │   ├── 📁 game/                # ゲーム画面
+│   │   │   └── [sessionId]/        # ゲームセッション
+│   │   ├── 📁 terms/               # 利用規約
+│   │   └── 📁 privacy/             # プライバシーポリシー
+│   ├── 📁 components/              # Reactコンポーネント
+│   │   ├── PasswordProtection.tsx  # 本番環境アクセス制限
+│   │   ├── 📁 auth/                # 認証関連UI
+│   │   │   ├── auth-provider.tsx   # 認証プロバイダー
+│   │   │   ├── signin-button.tsx   # サインインボタン
+│   │   │   ├── signout-button.tsx  # サインアウトボタン
+│   │   │   └── user-nav.tsx        # ユーザーナビゲーション
+│   │   ├── 📁 game/                # ゲーム関連UI
+│   │   │   ├── game-room.tsx       # ゲームルーム (基本版)
+│   │   │   ├── optimized-game-room.tsx # 最適化版ゲームルーム
+│   │   │   └── real-game-room.tsx  # リアルタイム版ゲームルーム
+│   │   ├── 📁 rooms/               # ルーム関連UI
+│   │   │   ├── create-room-form.tsx # ルーム作成フォーム
+│   │   │   └── room-detail.tsx     # ルーム詳細
+│   │   ├── 📁 layout/              # レイアウト関連
+│   │   │   └── footer.tsx          # フッター
+│   │   └── 📁 ui/                  # 基本UIコンポーネント (Radix UI)
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       ├── select.tsx
+│   │       ├── textarea.tsx
+│   │       ├── badge.tsx
+│   │       └── progress.tsx
+│   ├── 📁 lib/                     # ユーティリティ・ライブラリ
+│   │   ├── 📁 db/                  # データベース関連
+│   │   │   ├── index.ts            # DB接続・設定
+│   │   │   ├── schema.ts           # Drizzleスキーマ定義
+│   │   │   └── seed.ts             # データシード
+│   │   ├── 📁 types/               # 型定義
+│   │   │   └── websocket.ts        # WebSocket型定義 (any型除去済み)
+│   │   ├── auth.ts                 # NextAuth設定
+│   │   ├── config.ts               # 設定管理・環境変数・定数
+│   │   ├── validation.ts           # 入力検証・サニタイゼーション
+│   │   ├── logger.ts               # 構造化ログシステム
+│   │   ├── game-logic.ts           # ゲームエンジン・ロジック
+│   │   ├── room-utils.ts           # ルーム関連ユーティリティ
+│   │   ├── sample-questions.ts     # サンプルお題データ
+│   │   ├── seed-questions.ts       # お題シードユーティリティ
+│   │   ├── utils.ts                # 汎用ユーティリティ
+│   │   ├── websocket-client.ts     # WebSocketクライアント
+│   │   ├── websocket-server.ts     # WebSocketサーバー設定
+│   │   └── websocket-integrated.ts # WebSocket統合ライブラリ
+│   └── middleware.ts               # Next.js ミドルウェア (Basic認証)
+├── 📄 server.js                    # **カスタムサーバー (本番用 WebSocket統合)**
+├── 📄 package.json                 # 依存関係とスクリプト
+├── 📄 next.config.ts               # Next.js設定
+├── 📄 drizzle.config.ts            # Drizzle ORM設定
+├── 📄 docker-compose.yml           # PostgreSQL開発環境
+├── 📄 tailwind.config.ts           # Tailwind CSS設定
+├── 📄 postcss.config.mjs           # PostCSS設定
+├── 📁 drizzle/                     # DBマイグレーション
+├── 📁 docs/                        # プロジェクトドキュメント
+│   ├── README.md                   # ドキュメント目次
+│   ├── ARCHITECTURE.md             # アーキテクチャ詳細 (このファイル)
+│   ├── RENDER_DEPLOY.md            # Render.comデプロイガイド
+│   └── production-env.example      # 本番環境設定例
+└── 📁 deploy/                      # デプロイ関連ファイル
+    └── render.com/                 # Render.com用設定
 ```
 
 ---
@@ -174,49 +228,140 @@ npm start               # server.js統合サーバー (port 3000)
 
 ## 🗄️ データベース設計
 
-### **主要テーブル構成**
+### **Drizzle ORM スキーマ構成**
 
-```sql
--- ユーザー管理
-users (id, name, email, image, created_at)
+データベーススキーマは `src/lib/db/schema.ts` で定義され、以下のテーブルで構成されています:
 
--- ルーム管理
-rooms (id, name, code, host_id, max_players, status)
-
--- ゲームセッション
-game_sessions (id, room_id, current_round, total_rounds, status)
-
--- ラウンド管理
-rounds (id, session_id, question_id, round_number, time_limit, status)
-
--- お題データ
-questions (id, content, category, difficulty)
-
--- プレイヤー回答
-answers (id, round_id, user_id, content, submitted_at)
-
--- 投票システム
-votes (id, round_id, voter_id, answer_id, voted_at)
-
--- プレイヤーセッション
-player_sessions (id, session_id, user_id, score, status)
-```
-
-### **ステータス管理**
-
+#### **認証関連テーブル (NextAuth.js)**
 ```typescript
-// ルームステータス
-'waiting' | 'playing' | 'finished'
+// ユーザー
+users: {
+  id: text (Primary Key)           // NextAuth用文字列ID
+  name: text                       // ユーザー名
+  email: text (Not Null)          // メールアドレス
+  emailVerified: timestamp         // メール認証日時
+  image: text                      // プロフィール画像URL
+  createdAt, updatedAt: timestamp  // 作成・更新日時
+}
 
-// ゲームセッションステータス  
-'waiting' | 'question' | 'answering' | 'voting' | 'results' | 'finished'
+// OAuth アカウント
+accounts: {
+  userId: text (Foreign Key → users.id)
+  type: text                       // OAuth2.0
+  provider: text                   // google
+  providerAccountId: text          // Google Account ID
+  refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
+}
 
-// ラウンドステータス
-'waiting' | 'active' | 'voting' | 'completed'
+// セッション管理
+sessions: {
+  sessionToken: text (Primary Key)
+  userId: text (Foreign Key → users.id)
+  expires: timestamp
+}
 
-// プレイヤーステータス
-'connected' | 'disconnected'
+// メール認証トークン
+verificationTokens: {
+  identifier: text
+  token: text
+  expires: timestamp
+}
 ```
+
+#### **ゲーム関連テーブル**
+```typescript
+// ルーム
+rooms: {
+  id: uuid (Primary Key, Auto-generated)
+  name: text (Not Null)            // ルーム名
+  code: text (Unique, Not Null)    // 6文字参加コード
+  hostId: text (Foreign Key → users.id)
+  maxPlayers: integer (Default: 8) // 最大参加者数
+  status: roomStatusEnum (Default: 'waiting')
+  createdAt, updatedAt: timestamp
+}
+
+// ゲームセッション
+gameSessions: {
+  id: uuid (Primary Key, Auto-generated)
+  roomId: uuid (Foreign Key → rooms.id)
+  currentRound: integer (Default: 0)
+  totalRounds: integer (Default: 5)
+  status: sessionStatusEnum (Default: 'waiting')
+  startedAt, endedAt: timestamp
+}
+
+// お題
+questions: {
+  id: uuid (Primary Key, Auto-generated)
+  content: text (Not Null)         // お題内容
+  category: text (Not Null)        // カテゴリー
+  difficulty: difficultyEnum (Default: 'medium')
+  createdAt: timestamp
+}
+
+// ラウンド
+rounds: {
+  id: uuid (Primary Key, Auto-generated)
+  sessionId: uuid (Foreign Key → gameSessions.id)
+  questionId: uuid (Foreign Key → questions.id)
+  roundNumber: integer (Not Null)
+  timeLimit: integer (Default: 60) // 制限時間(秒)
+  status: roundStatusEnum (Default: 'waiting')
+  startedAt, endedAt: timestamp
+}
+
+// 回答
+answers: {
+  id: uuid (Primary Key, Auto-generated)
+  roundId: uuid (Foreign Key → rounds.id)
+  userId: text (Foreign Key → users.id)
+  content: text (Not Null)         // 回答内容
+  submittedAt: timestamp (Default: now())
+}
+
+// 投票
+votes: {
+  id: uuid (Primary Key, Auto-generated)
+  roundId: uuid (Foreign Key → rounds.id)
+  voterId: text (Foreign Key → users.id)
+  answerId: uuid (Foreign Key → answers.id)
+  votedAt: timestamp (Default: now())
+}
+
+// プレイヤーセッション
+playerSessions: {
+  id: uuid (Primary Key, Auto-generated)
+  sessionId: uuid (Foreign Key → gameSessions.id)
+  userId: text (Foreign Key → users.id)
+  score: integer (Default: 0)      // 累計スコア
+  status: playerStatusEnum (Default: 'connected')
+  joinedAt: timestamp (Default: now())
+  leftAt: timestamp
+}
+
+// ルームメンバー
+roomMembers: {
+  id: uuid (Primary Key, Auto-generated)
+  roomId: uuid (Foreign Key → rooms.id)
+  userId: text (Foreign Key → users.id)
+  joinedAt: timestamp (Default: now())
+}
+```
+
+#### **ENUM定義**
+```typescript
+roomStatusEnum: 'waiting' | 'playing' | 'finished'
+sessionStatusEnum: 'waiting' | 'question' | 'answering' | 'voting' | 'results' | 'finished'
+roundStatusEnum: 'waiting' | 'active' | 'voting' | 'completed'
+playerStatusEnum: 'connected' | 'disconnected'
+difficultyEnum: 'easy' | 'medium' | 'hard'
+```
+
+#### **外部キー制約とカスケード**
+- すべての外部キー参照に `onDelete: 'cascade'` を設定
+- ユーザー削除時、関連データも自動削除
+- ルーム削除時、ゲームセッション・ラウンド・回答・投票も削除
 
 ---
 
@@ -225,23 +370,70 @@ player_sessions (id, session_id, user_id, score, status)
 ### **REST API エンドポイント**
 
 ```typescript
+// 認証 (NextAuth.js)
+GET/POST /api/auth/[...nextauth]   // OAuth認証フロー
+POST     /api/auth/401             // Basic認証失敗時のエラーページ
+
 // ルーム管理
-POST   /api/rooms              // ルーム作成
-GET    /api/rooms              // ルーム一覧
-POST   /api/rooms/join         // ルーム参加
-GET    /api/rooms/[roomId]     // ルーム詳細
+POST     /api/rooms               // ルーム作成
+GET      /api/rooms               // ルーム一覧取得
+POST     /api/rooms/join          // コードでルーム参加
+GET      /api/rooms/[roomId]      // ルーム詳細取得  
+POST     /api/rooms/[roomId]/join // 直接ルーム参加
 
-// ゲーム管理
-POST   /api/game/start         // ゲーム開始
-POST   /api/game/answer        // 回答送信
-POST   /api/game/vote          // 投票送信
-GET    /api/game/[sessionId]   // ゲーム状態取得
+// ゲーム管理 (セッション別)
+GET      /api/game/[sessionId]           // ゲーム状態取得
+POST     /api/game/[sessionId]/start     // ゲーム開始
+POST     /api/game/[sessionId]/answer    // 回答送信
+POST     /api/game/[sessionId]/vote      // 投票送信
+PUT      /api/game/[sessionId]/phase     // フェーズ切り替え
+POST     /api/game/[sessionId]/next-round // 次ラウンド開始
 
-// データ管理
-POST   /api/seed               // お題データシード
+// お題管理
+POST     /api/questions/seed            // お題データシード
+```
 
-// 認証
-GET    /api/auth/*             // NextAuth endpoints
+### **API レスポンス例**
+
+#### ゲーム状態取得 (`GET /api/game/[sessionId]`)
+```typescript
+{
+  session: {
+    id: string,
+    status: 'waiting' | 'question' | 'answering' | 'voting' | 'results' | 'finished',
+    currentRound: number,
+    totalRounds: number
+  },
+  currentRound?: {
+    id: string,
+    roundNumber: number,
+    timeLimit: number,
+    status: string,
+    question: {
+      id: string,
+      content: string,
+      category: string
+    }
+  },
+  players: Array<{
+    id: string,
+    name: string,
+    score: number,
+    hasAnswered: boolean,
+    hasVoted: boolean,
+    status: 'connected' | 'disconnected'
+  }>,
+  answers?: Array<{
+    id: string,
+    content: string,
+    userId: string,
+    votes?: number
+  }>,
+  results?: {
+    winner: { userId: string, answerId: string, votes: number },
+    scores: Array<{ userId: string, username: string, score: number, rank: number }>
+  }
+}
 ```
 
 ### **WebSocket イベント**
@@ -335,35 +527,52 @@ finished    // ゲーム終了 or 次ラウンド
 ## ✅ 実装されている機能
 
 ### **🎯 コア機能**
-- ✅ Google OAuth ログイン
+- ✅ Google OAuth ログイン (NextAuth.js)
 - ✅ ルーム作成・参加 (6文字コード)
-- ✅ リアルタイム同期 (WebSocket)
-- ✅ お題ランダム出題 (30+ 種類)
-- ✅ 制限時間付き回答入力
-- ✅ 匿名投票システム
+- ✅ リアルタイム同期 (WebSocket + カスタムサーバー)
+- ✅ お題ランダム出題システム
+- ✅ 制限時間付き回答入力 (60秒)
+- ✅ 匿名投票システム (30秒)
 - ✅ スコア計算・ランキング
-- ✅ 複数ラウンド対応
+- ✅ 複数ラウンド対応 (最大20ラウンド)
+- ✅ プレイヤー状態管理 (接続/切断)
+- ✅ ゲームフェーズ管理 (waiting→question→answering→voting→results)
 
 ### **🔧 技術機能**
-- ✅ PostgreSQL データベース
-- ✅ Drizzle ORM
-- ✅ TypeScript 型安全性（any型完全除去）
-- ✅ セキュリティ強化（入力検証・サニタイゼーション）
-- ✅ 構造化ログシステム
+- ✅ PostgreSQL データベース (Drizzle ORM)
+- ✅ 完全TypeScript型安全性 (any型完全除去)
+- ✅ セキュリティ強化機能:
+  - ✅ 入力検証・サニタイゼーション (`src/lib/validation.ts`)
+  - ✅ UUID形式検証
+  - ✅ XSS・SQLインジェクション対策
+  - ✅ Basic認証対応 (本番環境アクセス制限)
+- ✅ 構造化ログシステム (`src/lib/logger.ts`)
+  - ✅ API/WebSocket/ゲーム専用ロガー
+  - ✅ 環境別出力形式 (開発/本番)
+  - ✅ 外部サービス連携準備
+- ✅ 設定管理システム (`src/lib/config.ts`)
+  - ✅ 環境変数検証
+  - ✅ ゲーム定数の一元管理
+  - ✅ 型安全な設定アクセス
 - ✅ React パフォーマンス最適化
-- ✅ 設定管理システム
-- ✅ レスポンシブデザイン
-- ✅ エラーハンドリング
-- ✅ 再接続機能
-- ✅ 本番デプロイ対応
+  - ✅ memo(), useMemo(), useCallback()
+  - ✅ 不要な再レンダリング防止
+- ✅ WebSocket型定義 (`src/lib/types/websocket.ts`)
+  - ✅ 厳密なメッセージ型定義
+  - ✅ Union型による型安全性
+- ✅ リアルタイム機能
+  - ✅ 自動再接続機能
+  - ✅ ハートビート監視
+  - ✅ 接続タイムアウト処理
+- ✅ 本番デプロイ対応 (Render.com)
 
 ### **🎨 UI/UX**
-- ✅ モダンデザイン (Tailwind CSS)
+- ✅ モダンデザイン (Tailwind CSS v4)
 - ✅ Radix UI コンポーネント
-- ✅ ダークモード対応
-- ✅ アニメーション
-- ✅ ローディング状態
-- ✅ エラー表示
+- ✅ レスポンシブデザイン
+- ✅ ローディング状態・エラー表示
+- ✅ ゲーム状態の視覚的フィードバック
+- ✅ プログレスバー・タイマー表示
 
 ---
 
@@ -408,34 +617,51 @@ curl -X POST http://localhost:3000/api/seed
 
 #### 入力検証・サニタイゼーション (`src/lib/validation.ts`)
 ```typescript
-// UUID検証
+// UUID形式検証
 export function isValidUUID(uuid: string): boolean
+export function isValidRoomCode(code: string): boolean
 
 // 入力サニタイゼーション
 export function validateAndSanitizeAnswer(content: string): string
 export function validateAndSanitizeRoomName(name: string): string
+export function sanitizeText(input: string): string
 
 // XSS・SQLインジェクション対策
-- HTMLエスケープ処理
-- 不正文字列パターン検出
+- HTMLエスケープ処理 (<, >, ", ', /)
+- 不正文字列パターン検出 (script, javascript:, on*=, data:, vbscript:)
 - 数値パラメータ範囲チェック
+- 文字数制限チェック (回答200文字、ルーム名50文字)
+```
+
+#### Basic認証・アクセス制限 (`src/middleware.ts`)
+```typescript
+// 本番環境でのBasic認証
+- 環境変数 BASIC_AUTH_ENABLED=true で有効化
+- 未認証時は /api/auth/401 にリダイレクト
+- 開発環境では認証スキップ
+
+// 環境変数
+BASIC_AUTH_USER=your_username
+BASIC_AUTH_PASSWORD=your_password
 ```
 
 #### API セキュリティ
 ```typescript
 // 全APIエンドポイントで実装済み
+- NextAuth.js セッション検証
 - UUID形式検証
 - 入力値サニタイゼーション
 - パラメータ範囲チェック
 - 認証状態確認
+- SQLインジェクション防止 (Drizzle ORM使用)
 ```
 
 ### **型安全性の向上**
 
 #### WebSocket型定義 (`src/lib/types/websocket.ts`)
 ```typescript
-// 厳密な型定義
-export interface WebSocketMessage = 
+// Union型による厳密なメッセージ型定義
+export type WebSocketMessage = 
   | JoinMessage 
   | LeaveMessage 
   | AnswerMessage 
@@ -443,27 +669,48 @@ export interface WebSocketMessage =
   | GameStateMessage 
   | QuestionMessage 
   | ResultsMessage 
+  | ScoreUpdateMessage
   | ErrorMessage;
+
+// 具体的なメッセージインターface
+export interface GameStateMessage extends Omit<GameMessage, 'type'> {
+  type: 'game_state';
+  data: {
+    phase: GamePhase;
+    timeLeft?: number;
+    players: GamePlayer[];
+    currentRound?: number;
+    totalRounds?: number;
+  };
+}
 
 // any型の完全除去
 - WebSocketハンドラー全体で型安全性確保
 - ランタイムエラー防止
 - 開発時の型チェック強化
+- 接続クライアント・イベントハンドラーも型定義済み
 ```
 
 ### **構造化ログシステム**
 
 #### Logger実装 (`src/lib/logger.ts`)
 ```typescript
-// 用途別ロガー
+// 用途別専用ロガー
 logger.api.request(method, path, userId, requestId)
+logger.api.response(method, path, status, duration, userId, requestId)
 logger.websocket.connection(clientId, sessionId, userId)
+logger.websocket.broadcast(type, sessionId, recipientCount)
 logger.game.sessionStart(sessionId, hostId, playerCount)
+logger.game.roundStart(sessionId, round, questionId)
 
-// 環境対応
-- 開発環境: 読みやすい形式
-- 本番環境: JSON形式
-- 外部サービス連携準備済み
+// 環境別出力形式
+- 開発環境: 読みやすいカラー形式
+- 本番環境: JSON形式（外部サービス連携対応）
+- デバッグログは開発環境のみ出力
+
+// コンテキスト付きロガー
+const contextLogger = logger.withContext({ sessionId, userId });
+contextLogger.info('Action performed');
 ```
 
 ### **React パフォーマンス最適化**
@@ -471,37 +718,62 @@ logger.game.sessionStart(sessionId, hostId, playerCount)
 #### 最適化コンポーネント (`src/components/game/optimized-game-room.tsx`)
 ```typescript
 // メモ化によるパフォーマンス向上
-const PlayerList = memo(({ players }) => { ... })
-const PlayerCard = memo(({ player }) => { ... })
+const PlayerList = memo(({ players }: { players: GamePlayer[] }) => { ... })
+const PlayerCard = memo(({ player }: { player: GamePlayer }) => { ... })
 
 // 計算結果のキャッシュ
-const sortedPlayers = useMemo(() => [...players].sort(...), [players])
-const handlePlayerUpdate = useCallback((message) => { ... }, [])
+const sortedPlayers = useMemo(
+  () => [...players].sort((a, b) => b.score - a.score), 
+  [players]
+)
 
-// 不要な再レンダリング防止
-- コンポーネント分割
-- 依存配列の最適化
-- 状態更新の最小化
+// イベントハンドラーの最適化
+const handlePlayerUpdate = useCallback((message: GameStateMessage) => {
+  // 最適化された状態更新ロジック
+}, [])
+
+// 不要な再レンダリング防止戦略
+- コンポーネント分割（関心の分離）
+- 依存配列の最適化（必要最小限の依存）
+- 状態更新の最小化（差分更新）
 ```
 
 ### **設定管理システム**
 
 #### 統合設定 (`src/lib/config.ts`)
 ```typescript
-// 環境変数検証
-const requiredEnvVars = ['DATABASE_URL', 'NEXTAUTH_SECRET', ...]
-if (missing.length > 0) throw new Error(...)
+// 環境変数検証（本番環境起動時）
+const requiredEnvVars = [
+  'DATABASE_URL', 'NEXTAUTH_SECRET', 'NEXTAUTH_URL',
+  'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'
+] as const;
+
+if (process.env.NODE_ENV === 'production') {
+  validateEnvironment(); // 不足時はエラーで停止
+}
 
 // ゲーム定数の一元管理
 export const GAME_CONSTANTS = {
   ANSWER_MAX_LENGTH: 200,
+  ROOM_CODE_LENGTH: 6,
   MAX_PLAYERS_PER_ROOM: 12,
+  MAX_ROUNDS: 20,
   HEARTBEAT_INTERVAL: 10000,
+  CONNECTION_TIMEOUT: 30000,
   // ... 全定数を統合管理
-}
+} as const;
 
 // 型安全な設定アクセス
-export const config = { ... } as const;
+export const config = {
+  isDevelopment: process.env.NODE_ENV === 'development',
+  databaseUrl: process.env.DATABASE_URL!,
+  websocketPort: parseInt(process.env.WEBSOCKET_PORT || '3001'),
+  // ...
+} as const;
+
+// 型ガード関数
+export function isValidGamePhase(phase: string): phase is GamePhase
+export function isValidRoomStatus(status: string): status is RoomStatus
 ```
 
 ### **品質保証**
