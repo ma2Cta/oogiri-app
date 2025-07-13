@@ -11,11 +11,11 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/lib/db/seed.ts",
     "ws:dev": "tsx scripts/start-websocket.js",
     "ws:prod": "node scripts/start-websocket.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run ws:dev\"",
-    "deploy:setup": "npm run db:push && npm run seed:prod",
-    "seed:prod": "curl -X POST $NEXTAUTH_URL/api/seed"
+    "deploy:setup": "npm run db:push && npm run db:seed"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
