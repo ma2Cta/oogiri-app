@@ -32,7 +32,6 @@ services:
       # - GOOGLE_CLIENT_ID
       # - GOOGLE_CLIENT_SECRET
       # - WEBSOCKET_URL (fromService host property)
-      # - NEXT_PUBLIC_APP_PASSWORD (パスワード保護用)
     healthCheckPath: /api/health
 
 databases:
