@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: oogiri-app
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oogiri-db
+          property: connectionString
+      - key: NEXTAUTH_URL
+        fromService:
+          type: web
+          name: oogiri-app
+          property: host
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: WEBSOCKET_PORT
+        value: 3000
+      # Render.comダッシュボードで手動設定する機密情報:
+      # - BASIC_AUTH_ENABLED (true/false)
+      # - BASIC_AUTH_USER
+      # - BASIC_AUTH_PASSWORD
+      # - GOOGLE_CLIENT_ID
+      # - GOOGLE_CLIENT_SECRET
+      # - WEBSOCKET_URL (fromService host property)
+    healthCheckPath: /api/health
+
+databases:
+  - name: oogiri-db
+    databaseName: oogiri
+    user: oogiri_user
+    plan: free

@@ -94,7 +94,6 @@ oogiri-app/
 │   │   ├── 📁 terms/               # 利用規約
 │   │   └── 📁 privacy/             # プライバシーポリシー
 │   ├── 📁 components/              # Reactコンポーネント
-│   │   ├── PasswordProtection.tsx  # 本番環境アクセス制限
 │   │   ├── 📁 auth/                # 認証関連UI
 │   │   │   ├── auth-provider.tsx   # 認証プロバイダー
 │   │   │   ├── signin-button.tsx   # サインインボタン
