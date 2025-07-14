@@ -4,14 +4,33 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserNav } from "@/components/auth/user-nav";
 import { 
-  Theater, GamepadIcon, DoorOpen, Home as HomeIcon, Users, 
+  MessageSquare, GamepadIcon, DoorOpen, Home as HomeIcon, Users, 
   Edit3, Trophy, Zap, FileText, Vote, BarChart3, 
-  Key, Settings, Rocket, Eye
+  Key, Settings, Rocket, Eye, AlertTriangle, Database
 } from 'lucide-react';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* 開発中警告バナー */}
+      <div className="bg-orange-500/10 border-b border-orange-200 dark:border-orange-800">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-center gap-4 text-orange-800 dark:text-orange-200">
+            <AlertTriangle className="w-5 h-5" />
+            <span className="text-sm font-medium">
+              🚧 開発中のアプリケーションです
+            </span>
+            <span className="text-sm text-orange-700 dark:text-orange-300">•</span>
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              <span className="text-sm">
+                データベースが定期的にリセットされる可能性があります
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       {/* ヘッダー */}
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
         <div className="container mx-auto px-4 py-4">
@@ -39,7 +58,7 @@ export default function Home() {
         <section className="text-center mb-16">
           <div className="max-w-3xl mx-auto">
             <Badge className="mb-4" variant="secondary">
-              <Theater className="w-4 h-4 mr-2" />
+              <MessageSquare className="w-4 h-4 mr-2" />
               リアルタイムマルチプレイヤー大喜利
             </Badge>
             <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -213,7 +232,7 @@ export default function Home() {
           <Card className="max-w-3xl mx-auto text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-blue-200">
             <CardContent className="pt-12 pb-12">
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                <Theater className="w-16 h-16 text-blue-600" />
+                <MessageSquare className="w-16 h-16 text-blue-600" />
               </div>
               <h2 className="text-3xl font-bold mb-4">今すぐ友達と大喜利バトル！</h2>
               <p className="text-xl text-muted-foreground mb-8">

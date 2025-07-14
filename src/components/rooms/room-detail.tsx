@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Theater } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 interface Room {
   id: string;
@@ -102,7 +102,7 @@ export function RoomDetail({ roomId }: RoomDetailProps) {
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <Theater className="w-12 h-12 text-blue-600" />
+                <MessageSquare className="w-12 h-12 text-blue-600" />
               </div>
               <p>ルーム情報を読み込み中...</p>
             </div>

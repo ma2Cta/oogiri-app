@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Theater, Circle } from 'lucide-react';
+import { MessageSquare, Circle } from 'lucide-react';
 
 export function CreateRoomForm() {
   const { status } = useSession();
@@ -78,7 +78,7 @@ export function CreateRoomForm() {
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                <Theater className="w-12 h-12 text-blue-600" />
+                <MessageSquare className="w-12 h-12 text-blue-600" />
               </div>
               <p>認証状態を確認中...</p>
             </div>

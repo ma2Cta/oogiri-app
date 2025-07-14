@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { GameWebSocketClient } from '@/lib/websocket-client';
-import { Theater, MessageCircle, PartyPopper, Trophy, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
+import { MessageSquare, MessageCircle, PartyPopper, Trophy, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
 import { JoinMessage, LeaveMessage, AnswerMessage, VoteMessage, ErrorMessage, GameStateMessage, QuestionMessage, ResultsMessage } from '@/lib/types/websocket';
 
 interface Player {
@@ -392,7 +392,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-            <Theater className="w-12 h-12 text-blue-600" />
+            <MessageSquare className="w-12 h-12 text-blue-600" />
           </div>
           <p className="text-xl">ゲームセッションを読み込み中...</p>
         </div>
@@ -445,7 +445,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-3">
-                    <Theater className="w-4 h-4 inline mr-1" />
+                    <MessageSquare className="w-4 h-4 inline mr-1" />
                     セッション: {sessionId.slice(0, 8)}...
                     <Badge variant={connected === true ? 'default' : connected === false ? 'destructive' : 'secondary'}>
                       {connected === true ? '接続中' : connected === false ? '切断中' : '接続試行中...'}
@@ -690,7 +690,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
                           <div className="text-right">
                             <div className="text-lg font-bold">
                               {players.length === 1 ? (
-                                <Theater className="w-4 h-4" />
+                                <MessageSquare className="w-4 h-4" />
                               ) : (
                                 `${answer.votes || 0}票`
                               )}
