@@ -8,13 +8,9 @@ interface SignOutButtonProps {
 }
 
 export function SignOutButton({ children }: SignOutButtonProps) {
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
-  };
-
   return (
     <Button 
-      onClick={handleSignOut}
+      onClick={() => signOut({ callbackUrl: '/' })}
       variant="outline"
     >
       {children || 'ログアウト'}

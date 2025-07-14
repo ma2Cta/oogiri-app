@@ -1,4 +1,4 @@
-import { AdaptiveSignInButton } from '@/components/auth/adaptive-signin-button';
+import { SignInButton } from '@/components/auth/signin-button';
 
 export default function SignIn() {
   return (
@@ -13,7 +13,7 @@ export default function SignIn() {
           </p>
         </div>
         <div className="mt-8 space-y-6">
-          <AdaptiveSignInButton />
+          <SignInButton />
         </div>
       </div>
     </div>
