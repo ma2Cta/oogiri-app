@@ -1,14 +1,14 @@
 import { Button } from '@/components/ui/button';
-import { signInWithGoogle } from '@/app/actions/auth';
 
 /**
- * 本番環境専用のサーバーアクション対応サインインボタン
+ * 本番環境専用のサインインボタン
  * Cloud Run等でのINVALID_REQUESTエラー回避のため、
- * フォームベースのサーバーアクションを使用
+ * フォームアクションを直接NextAuth APIエンドポイントにPOST
  */
 export function ProductionSignInButton() {
   return (
-    <form action={signInWithGoogle}>
+    <form action="/api/auth/signin/google" method="POST">
+      <input type="hidden" name="callbackUrl" value="/" />
       <Button 
         type="submit"
         className="w-full"
