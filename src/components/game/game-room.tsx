@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { GameState, GameEngine, Player, Question } from '@/lib/game-logic';
 import { getRandomQuestion } from '@/lib/sample-questions';
-import { Theater, MessageCircle, Trophy, PartyPopper, Crown, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
+import { MessageSquare, MessageCircle, Trophy, PartyPopper, Crown, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
 
 interface GameRoomProps {
   roomId: string;
@@ -128,7 +128,7 @@ export function GameRoom({ roomId, currentUser }: GameRoomProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-3">
-                    <Theater className="w-4 h-4 inline mr-1" />
+                    <MessageSquare className="w-4 h-4 inline mr-1" />
                     ルーム: {roomId}
                     <Badge variant={getStatusColor() as 'default' | 'secondary' | 'destructive' | 'outline' | null | undefined}>
                       {getStatusDisplay()}

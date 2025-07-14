@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserNav } from "@/components/auth/user-nav";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { DoorOpen, Plus, Theater, Home, Users, Key } from 'lucide-react';
+import { DoorOpen, Plus, MessageSquare, Home, Users, Key } from 'lucide-react';
 
 interface Room {
   id: string;
@@ -136,7 +136,7 @@ export default function RoomsPage() {
               <CardContent className="space-y-4">
                 <div className="text-center py-8">
                   <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <Theater className="w-16 h-16 text-blue-600" />
+                    <MessageSquare className="w-16 h-16 text-blue-600" />
                   </div>
                   <p className="text-muted-foreground mb-4">
                     あなたがホストとなってゲームを主催します
