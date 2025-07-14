@@ -68,7 +68,8 @@ oogiri-app/
 │   │   ├── globals.css             # グローバルスタイル
 │   │   ├── favicon.ico             # ファビコン
 │   │   ├── 📁 api/                 # API Routes
-│   │   │   ├── 📁 auth/            # NextAuth設定・401エラー
+│   │   │   ├── 📁 auth/            # NextAuth設定・本番対応
+│   │   │   │   └── [...nextauth]/  # NextAuth認証エンドポイント
 │   │   │   ├── 📁 rooms/           # ルーム管理API
 │   │   │   │   ├── route.ts        # ルーム作成・一覧
 │   │   │   │   ├── join/route.ts   # ルーム参加
@@ -83,6 +84,8 @@ oogiri-app/
 │   │   │   │       └── next-round/ # 次ラウンド
 │   │   │   └── 📁 questions/       # お題管理
 │   │   │       └── seed/           # お題データシード
+│   │   ├── 📁 actions/             # サーバーアクション
+│   │   │   └── auth.ts             # 認証関連アクション (本番対応)
 │   │   ├── 📁 auth/                # 認証ページ
 │   │   │   └── signin/             # サインインページ
 │   │   ├── 📁 rooms/               # ルーム関連ページ
@@ -96,8 +99,10 @@ oogiri-app/
 │   ├── 📁 components/              # Reactコンポーネント
 │   │   ├── 📁 auth/                # 認証関連UI
 │   │   │   ├── auth-provider.tsx   # 認証プロバイダー
-│   │   │   ├── signin-button.tsx   # サインインボタン
-│   │   │   ├── signout-button.tsx  # サインアウトボタン
+│   │   │   ├── signin-button.tsx   # 開発環境用サインインボタン
+│   │   │   ├── signout-button.tsx  # 開発環境用サインアウトボタン
+│   │   │   ├── production-signin-button.tsx # 本番環境用サーバーアクションボタン
+│   │   │   ├── adaptive-signin-button.tsx # 環境適応型サインインボタン
 │   │   │   └── user-nav.tsx        # ユーザーナビゲーション
 │   │   ├── 📁 game/                # ゲーム関連UI
 │   │   │   ├── game-room.tsx       # ゲームルーム (基本版)
@@ -124,6 +129,8 @@ oogiri-app/
 │   │   ├── 📁 types/               # 型定義
 │   │   │   └── websocket.ts        # WebSocket型定義 (any型除去済み)
 │   │   ├── auth.ts                 # NextAuth設定
+│   │   ├── auth-server.ts          # NextAuth v4 サーバー設定 (本番対応)
+│   │   ├── auth-utils.ts           # 認証関連ユーティリティ関数
 │   │   ├── config.ts               # 設定管理・環境変数・定数
 │   │   ├── validation.ts           # 入力検証・サニタイゼーション
 │   │   ├── logger.ts               # 構造化ログシステム
@@ -459,19 +466,64 @@ POST     /api/questions/seed            // お題データシード
 ### **NextAuth.js + Google OAuth**
 
 ```typescript
-// src/lib/auth.ts
+// src/lib/auth.ts - 認証設定
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db, createTable),
+  adapter: DrizzleAdapter(db),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/auth/signin",
+  callbacks: {
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
   },
+  pages: {
+    signIn: '/auth/signin',
+  },
+};
+
+// src/lib/auth-server.ts - NextAuth v4 サーバー設定
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+```
+
+### **環境適応型認証システム (本番環境対応)**
+
+```typescript
+// src/lib/auth-utils.ts - 共通ユーティリティ
+export const isProduction = (): boolean => process.env.NODE_ENV === 'production';
+export const getAuthRedirectUrl = (provider: string, callbackUrl = '/') => 
+  `/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
+// src/app/actions/auth.ts - エラーハンドリング対応サーバーアクション
+export async function signInWithGoogle() {
+  try {
+    if (isProduction()) {
+      const redirectUrl = getAuthRedirectUrl('google', '/');
+      redirect(redirectUrl);
+    } else {
+      throw new Error('DEV_ENV_CLIENT_AUTH_REQUIRED');
+    }
+  } catch (error) {
+    logAuthError('signInWithGoogle', error);
+    throw new Error('Authentication failed. Please try again.');
+  }
+}
+
+// src/components/auth/adaptive-signin-button.tsx - 環境判定
+export function AdaptiveSignInButton() {
+  if (isProduction()) {
+    return <ProductionSignInButton />; // サーバーアクション
+  } else {
+    return <SignInButton />; // クライアントサイド認証
+  }
 }
 ```
 
