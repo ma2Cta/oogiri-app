@@ -10,6 +10,7 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ sessionId: string }> }
 ) {
+  console.log('Answer API called');
   try {
     const session = await getServerSession(authOptions);
     
@@ -78,6 +79,8 @@ export async function POST(
       content: sanitizedContent,
       submittedAt: new Date()
     }).returning();
+
+    // 回答状況が保存されました
 
     // 自動フェーズ遷移チェック: 全員が回答済みかチェック
     const allPlayers = await db.select().from(playerSessions)

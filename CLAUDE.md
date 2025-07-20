@@ -23,7 +23,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 開発コマンド
 
-- **開発サーバー起動**: `npm run dev` (Turbopackを使用して高速ビルド)
+- **開発サーバー起動**: `npm run dev` (SSE + Turbopackを使用して高速ビルド)
+- **従来の開発サーバー**: `npm run dev:next` (SSEなし、通常のNext.js dev server)
 - **本番用ビルド**: `npm run build`
 - **本番サーバー起動**: `npm start`
 - **コードの静的解析**: `npm run lint`
@@ -48,6 +49,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Lucide React（アイコン）
 
 - **バックエンド・データベース**
+  - Server-Sent Events（リアルタイム通信）
   - Drizzle ORM
   - PostgreSQL
   - NextAuth.js（認証）
@@ -58,12 +60,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - class-variance-authority（スタイリング）
   - clsx & tailwind-merge（クラス管理）
 
-### リアルタイム通信の検討事項
-リアルタイムマルチプレイヤー機能には以下の技術を検討：
-- WebSocket (Socket.io)
-- Server-Sent Events (SSE)
-- Pusher/Ably等のリアルタイムサービス
-- Vercel等のサーバーレス環境での制約を考慮
+### リアルタイム更新
+定期ポーリングを使用してリアルタイム更新を実装：
+- 2秒間隔での状態取得による準リアルタイム表示
+- シンプルなHTTPリクエストベース
+- サーバーレス環境でも安定動作
+- Render.comの環境に最適化
 
 ### ファイル構成
 詳細なアーキテクチャについては、[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) を参照してください。
@@ -71,7 +73,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/app/layout.tsx`: フォント設定とメタデータを含むルートレイアウト
 - `src/app/page.tsx`: ホームページコンポーネント
 - `src/app/globals.css`: グローバルスタイル
-- `server.js`: **本番用カスタムサーバー (Next.js + WebSocket統合)**
+- `server.js`: **本番用カスタムサーバー (Next.js + SSE統合)**
 - `@/*` インポートが `src/*` を指すパスエイリアス設定
 
 ## アプリケーション設計

@@ -48,9 +48,6 @@ export const config = {
   googleClientId: process.env.GOOGLE_CLIENT_ID!,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
   
-  // WebSocket
-  websocketPort: parseInt(process.env.WEBSOCKET_PORT || '3001'),
-  
   // サーバー
   port: parseInt(process.env.PORT || '3000'),
   hostname: process.env.HOSTNAME || 'localhost',
@@ -75,12 +72,6 @@ export const GAME_CONSTANTS = {
   MIN_ANSWER_TIME: 30,  // 30秒
   MAX_VOTING_TIME: 120, // 2分
   MIN_VOTING_TIME: 15,  // 15秒
-  
-  // WebSocket
-  HEARTBEAT_INTERVAL: 10000,      // 10秒
-  CONNECTION_TIMEOUT: 30000,      // 30秒
-  MAX_RECONNECT_ATTEMPTS: 5,
-  RECONNECT_DELAY: 1000,          // 1秒
   
   // API制限
   ROOM_CODE_GENERATION_MAX_ATTEMPTS: 10,
@@ -151,10 +142,6 @@ export const ERROR_CODES = {
   INVALID_GAME_STATE: 'INVALID_GAME_STATE',
   ALREADY_ANSWERED: 'ALREADY_ANSWERED',
   ALREADY_VOTED: 'ALREADY_VOTED',
-  
-  // WebSocketエラー
-  CONNECTION_FAILED: 'CONNECTION_FAILED',
-  MESSAGE_FORMAT_ERROR: 'MESSAGE_FORMAT_ERROR',
   
   // サーバーエラー
   INTERNAL_ERROR: 'INTERNAL_ERROR',

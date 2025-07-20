@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { GameWebSocketClient } from '@/lib/websocket-client';
 import { MessageSquare, MessageCircle, PartyPopper, Trophy, Users, FileText, CheckCircle, Clock, Vote, Medal } from 'lucide-react';
-import { JoinMessage, LeaveMessage, AnswerMessage, VoteMessage, ErrorMessage, GameStateMessage, QuestionMessage, ResultsMessage } from '@/lib/types/websocket';
 
 interface Player {
   id: string;
@@ -58,8 +56,8 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [wsClient, setWsClient] = useState<GameWebSocketClient | null>(null);
-  const [connected, setConnected] = useState<boolean | null>(null); // null = 接続試行前, false = 切断中, true = 接続中
+  const [hasSubmittedAnswer, setHasSubmittedAnswer] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
   const [timeRemaining] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,187 +89,33 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
     }
   }, [sessionId]);
 
-  // WebSocket接続とイベントハンドラー設定
+
+  // 初回データ取得
   useEffect(() => {
     if (!session?.user?.id) return;
-
-    // WebSocketサーバーの起動を待つため遅延
-    const initializeWebSocket = async () => {
-      // 初回データ取得を待つ
-      if (!gameSession) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      const client = new GameWebSocketClient(sessionId, session.user.id);
-    
-    // WebSocket接続イベント
-    client.on('connect', () => {
-      setConnected(true);
-      console.log('WebSocket connected');
-    });
-
-    // WebSocket切断イベント
-    client.on('disconnect', () => {
-      setConnected(false);
-      console.log('WebSocket disconnected');
-    });
-
-    // ゲームセッション参加イベント
-    client.on('join', (message) => {
-      const joinMessage = message as JoinMessage;
-      if (joinMessage.data?.success) {
-        console.log('Joined game session');
-        // 参加成功時も接続状態を確認
-        setConnected(client.isConnected());
-      }
-      // プレイヤー参加の場合
-      if (joinMessage.data?.userId && joinMessage.data.userId !== session.user.id) {
-        fetchGameSession(); // プレイヤーリストを更新
-      }
-    });
-
-    client.on('leave', (message) => {
-      const leaveMessage = message as LeaveMessage;
-      if (leaveMessage.data?.userId) {
-        fetchGameSession(); // プレイヤーリストを更新
-      }
-    });
-
-    // ゲーム状態更新
-    client.on('game_state', (message) => {
-      const stateMessage = message as GameStateMessage;
-      if (stateMessage.data) {
-        // GameStateMessage.dataからGameSessionに変換
-        setGameSession({
-          id: sessionId,
-          roomId: '',
-          currentRound: stateMessage.data.currentRound || 1,
-          totalRounds: stateMessage.data.totalRounds || 3,
-          status: stateMessage.data.phase,
-          startedAt: undefined,
-          endedAt: undefined
-        });
-      }
-    });
-
-    // 質問受信
-    client.on('question', (message) => {
-      const questionMessage = message as QuestionMessage;
-      if (questionMessage.data) {
-        // QuestionMessage.dataからQuestionに変換
-        setCurrentQuestion({
-          id: questionMessage.data.id,
-          content: questionMessage.data.content,
-          category: questionMessage.data.category || '一般',
-          difficulty: 'medium' // デフォルト値を設定
-        });
-      }
-    });
-
-    // 回答状況更新
-    client.on('answer', (message) => {
-      const answerMessage = message as AnswerMessage;
-      if (answerMessage.data?.userId) {
-        setPlayers(prev => prev.map(p => 
-          p.id === answerMessage.data.userId 
-            ? { ...p, hasAnswered: true }
-            : p
-        ));
-      }
-    });
-
-    // 投票状況更新
-    client.on('vote', (message) => {
-      const voteMessage = message as VoteMessage;
-      if (voteMessage.data?.userId) {
-        setPlayers(prev => prev.map(p => 
-          p.id === voteMessage.data.userId 
-            ? { ...p, hasVoted: true }
-            : p
-        ));
-      }
-    });
-
-    // 結果受信
-    client.on('results', (message) => {
-      const resultsMessage = message as ResultsMessage;
-      if (resultsMessage.data) {
-        // ResultsMessage.dataからAnswerとPlayerに変換
-        const answers = resultsMessage.data.answers?.map(answer => ({
-          id: answer.id,
-          userId: answer.userId,
-          content: answer.content,
-          votes: answer.votes,
-          submittedAt: ''
-        })) || [];
-        setAnswers(answers);
-        // プレイヤーリストは再取得した方が確実
-        fetchGameSession();
-      }
-    });
-
-
-    // スコア更新イベント
-    client.on('score_update', (message) => {
-      console.log('Score update received:', message.data);
-      // 現在のゲーム状態を再取得してスコアを最新化
-      fetchGameSession();
-    });
-
-    // エラーハンドリング
-    client.on('error', (message) => {
-      const errorMessage = message as ErrorMessage;
-      console.error('WebSocket error:', errorMessage.data?.error);
-      // 結果表示中はWebSocketエラーを無視
-      if (!gameSession || gameSession.status !== 'results') {
-        setError(errorMessage.data?.error || 'WebSocket error');
-      }
-    });
-
-      // 接続試行開始時に状態を更新
-      setConnected(null); // 接続試行中
-      
-      try {
-        await client.connect();
-        // connectイベントで状態更新されるため、ここでは何もしない
-      } catch (error) {
-        console.error('Failed to connect:', error);
-        setConnected(false); // 接続失敗
-        // 結果表示中はWebSocket接続エラーを無視
-        if (!gameSession || gameSession.status !== 'results') {
-          setError('Failed to connect to game server');
-        }
-      }
-
-      setWsClient(client);
-      return client;
-    };
-
-    let currentClient: GameWebSocketClient | null = null;
-    
-    initializeWebSocket().then(client => {
-      currentClient = client;
-    });
-
-    // クリーンアップ関数を返す
-    return () => {
-      if (currentClient) {
-        currentClient.disconnect();
-      }
-    };
-  }, [session?.user?.id, sessionId]); // gameSession依存関係を削除
-
-  // 初回データ取得と定期ポーリング
-  useEffect(() => {
     fetchGameSession();
+  }, [session?.user?.id, fetchGameSession]);
+
+  // 定期ポーリングを使用
+  useEffect(() => {
+    if (!session?.user?.id) return;
     
-    // ゲーム進行中は定期的に状態をチェック
     const pollInterval = setInterval(() => {
+      console.log('Polling game state');
       fetchGameSession();
-    }, 3000); // 3秒間隔でポーリング（頻度を下げる）
-    
+    }, 2000); // 2秒間隔でポーリング
+
     return () => clearInterval(pollInterval);
-  }, [fetchGameSession]); // gameSession依存関係を削除
+  }, [session?.user?.id, fetchGameSession]);
+
+  // フェーズ変更時にフラグをリセット
+  useEffect(() => {
+    if (gameSession?.status === 'answering') {
+      setHasSubmittedAnswer(false);
+    } else if (gameSession?.status === 'voting') {
+      setHasVoted(false);
+    }
+  }, [gameSession?.status]);
 
   // ゲーム開始
   const startGame = async () => {
@@ -288,14 +132,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
       setGameSession(data.gameSession);
       setCurrentQuestion(data.question);
       
-      // WebSocket経由で他のプレイヤーに通知
-      if (wsClient) {
-        wsClient.send({
-          type: 'game_state',
-          data: data.gameSession,
-          timestamp: Date.now()
-        });
-      }
+      // ゲーム状態は定期ポーリングで更新されます
     } catch (error) {
       console.error('Error starting game:', error);
       setError(error instanceof Error ? error.message : 'Failed to start game');
@@ -320,18 +157,12 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
       }
 
       setCurrentAnswer('');
+      setHasSubmittedAnswer(true);
       
-      // WebSocket経由で回答完了を通知
-      if (wsClient) {
-        wsClient.submitAnswer(currentAnswer.trim());
-      }
-      
-      // 自分の状態を更新
-      setPlayers(prev => prev.map(p => 
-        p.id === session?.user?.id 
-          ? { ...p, hasAnswered: true }
-          : p
-      ));
+      // ポーリング方式なので即座に状態をフェッチ
+      setTimeout(() => {
+        fetchGameSession();
+      }, 500); // 0.5秒後にフェッチ
 
     } catch (error) {
       console.error('Error submitting answer:', error);
@@ -352,17 +183,12 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
         throw new Error('Failed to submit vote');
       }
 
-      // WebSocket経由で投票完了を通知
-      if (wsClient) {
-        wsClient.submitVote(answerId);
-      }
+      setHasVoted(true);
       
-      // 自分の状態を更新
-      setPlayers(prev => prev.map(p => 
-        p.id === session?.user?.id 
-          ? { ...p, hasVoted: true }
-          : p
-      ));
+      // ポーリング方式なので即座に状態をフェッチ
+      setTimeout(() => {
+        fetchGameSession();
+      }, 500); // 0.5秒後にフェッチ
 
     } catch (error) {
       console.error('Error submitting vote:', error);
@@ -384,8 +210,8 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
   };
 
   const currentPlayer = players.find(p => p.id === session?.user?.id);
-  const hasAnswered = currentPlayer?.hasAnswered || false;
-  const hasVoted = currentPlayer?.hasVoted || false;
+  const hasAnswered = hasSubmittedAnswer || currentPlayer?.hasAnswered || false;
+  const hasVotedStatus = hasVoted || currentPlayer?.hasVoted || false;
 
   if (loading) {
     return (
@@ -447,8 +273,8 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
                   <CardTitle className="flex items-center gap-3">
                     <MessageSquare className="w-4 h-4 inline mr-1" />
                     セッション: {sessionId.slice(0, 8)}...
-                    <Badge variant={connected === true ? 'default' : connected === false ? 'destructive' : 'secondary'}>
-                      {connected === true ? '接続中' : connected === false ? '切断中' : '接続試行中...'}
+                    <Badge variant="default">
+                      ポーリング中
                     </Badge>
                     <Badge>
                       {getStatusDisplay()}
@@ -634,7 +460,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
                               </div>
                               <p className="text-lg">&ldquo;{answer.content}&rdquo;</p>
                             </div>
-                            {(!isOwnAnswer || players.length === 1) && !hasVoted && (
+                            {(!isOwnAnswer || players.length === 1) && !hasVotedStatus && (
                               <Button
                                 onClick={() => submitVote(answer.id)}
                                 variant="outline"
@@ -647,7 +473,7 @@ export function RealGameRoom({ sessionId }: RealGameRoomProps) {
                         </div>
                       );
                     })}
-                    {hasVoted && (
+                    {hasVotedStatus && (
                       <div className="text-center py-4">
                         <Badge>投票完了</Badge>
                         <p className="text-sm text-muted-foreground mt-2">

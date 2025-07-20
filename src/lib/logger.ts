@@ -124,19 +124,6 @@ class Logger {
     };
   }
 
-  // WebSocket専用ロガー
-  websocket = {
-    connection: (clientId: string, sessionId: string, userId: string) => 
-      this.info('WebSocket connection established', { clientId, sessionId, userId }),
-    disconnection: (clientId: string, sessionId: string, userId: string) => 
-      this.info('WebSocket disconnection', { clientId, sessionId, userId }),
-    message: (type: string, sessionId: string, userId?: string) => 
-      this.debug('WebSocket message received', { messageType: type, sessionId, userId }),
-    error: (error: Error, sessionId?: string, userId?: string) => 
-      this.error('WebSocket error', error, { sessionId, userId }),
-    broadcast: (type: string, sessionId: string, recipientCount: number) => 
-      this.debug('WebSocket broadcast', { messageType: type, sessionId, recipientCount })
-  };
 
   // API専用ロガー
   api = {

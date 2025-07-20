@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "NODE_ENV=development node server.js",
+    "dev:next": "next dev --turbopack",
     "build": "next build",
     "start": "node server.js",
     "start:next": "next start",
@@ -12,9 +13,6 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/lib/db/seed.ts",
-    "ws:dev": "tsx scripts/start-websocket.js",
-    "ws:prod": "node scripts/start-websocket.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run ws:dev\"",
     "deploy:setup": "npm run db:push && npm run db:seed"
   },
   "dependencies": {
