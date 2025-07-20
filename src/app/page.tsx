@@ -135,7 +135,7 @@ export default function Home() {
             {[
               { 
                 title: "リアルタイム同期", 
-                description: "WebSocketを使用してリアルタイムでゲーム状況が同期されます",
+                description: "定期的な状態更新により、リアルタイムでゲーム状況が同期されます",
                 icon: Zap,
                 color: "from-yellow-400 to-orange-500"
               },

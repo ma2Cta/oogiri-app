@@ -23,15 +23,12 @@ services:
         value: 3000
       - key: HOSTNAME
         value: 0.0.0.0
-      - key: WEBSOCKET_PORT
-        value: 3000
       # Render.comダッシュボードで手動設定する機密情報:
       # - BASIC_AUTH_ENABLED (true/false)
       # - BASIC_AUTH_USER
       # - BASIC_AUTH_PASSWORD
       # - GOOGLE_CLIENT_ID
       # - GOOGLE_CLIENT_SECRET
-      # - WEBSOCKET_URL (fromService host property)
     healthCheckPath: /api/health
 
 databases:

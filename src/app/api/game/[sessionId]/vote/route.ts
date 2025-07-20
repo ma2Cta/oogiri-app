@@ -5,7 +5,6 @@ import { db } from '@/lib/db';
 import { votes, answers, rounds, gameSessions, playerSessions, users } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
-import { getWebSocketServer } from '@/lib/websocket-server';
 
 // スコア計算とプレイヤーセッション更新
 async function calculateAndUpdateScores(sessionId: string, roundId: string) {
@@ -53,47 +52,7 @@ async function calculateAndUpdateScores(sessionId: string, roundId: string) {
     .innerJoin(users, eq(playerSessions.userId, users.id))
     .where(eq(playerSessions.sessionId, sessionId));
 
-    // ラウンド勝者を特定
-    const roundWinner = voteResults.length > 0 
-      ? voteResults.reduce((prev, current) => 
-          current.voteCount > prev.voteCount ? current : prev
-        )
-      : null;
-
-    // WebSocketでスコア更新を配信
-    try {
-      const wsServer = getWebSocketServer();
-      const scoresWithRank = updatedPlayers
-        .sort((a, b) => b.score - a.score)
-        .map((player, index) => ({
-          userId: player.userId,
-          username: player.username || 'Unknown',
-          score: player.score,
-          rank: index + 1
-        }));
-
-      wsServer.broadcastScoreUpdate(sessionId, {
-        scores: scoresWithRank,
-        roundWinner: roundWinner ? {
-          userId: roundWinner.userId,
-          answerId: roundWinner.answerId,
-          votes: roundWinner.voteCount
-        } : undefined
-      });
-
-      logger.info('Score update broadcasted via WebSocket', {
-        sessionId,
-        roundId,
-        scoresCount: scoresWithRank.length,
-        hasWinner: !!roundWinner
-      });
-    } catch (wsError) {
-      logger.error('Failed to broadcast score update via WebSocket', 
-        wsError instanceof Error ? wsError : new Error('Unknown WebSocket error'), {
-        sessionId,
-        roundId
-      });
-    }
+    // スコア更新が完了しました
 
     logger.info('Player scores updated', {
       sessionId,
@@ -200,6 +159,8 @@ export async function POST(
       votedAt: new Date()
     }).returning();
 
+    // 投票が保存されました
+
     // 現在のラウンドで投票済みのプレイヤー数を取得
     const votedPlayers = await db.select().from(votes)
       .where(eq(votes.roundId, currentRound.id));
@@ -220,6 +181,8 @@ export async function POST(
         playerCount: allPlayers.length,
         votedCount: votedPlayers.length 
       });
+      
+      // フェーズが結果表示に移行しました
     }
 
     return NextResponse.json({ vote: newVote });
