@@ -139,28 +139,9 @@ async function seedProduction() {
 
 // スクリプトとして実行された場合のみシード実行
 if (process.argv[1] === __filename) {
-  // 確認プロンプト用の動的インポート
-  import('readline').then((readline) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    
-    console.log('\n⚠️  警告: 本番環境用のシードスクリプトを実行しようとしています。');
-    console.log('このスクリプトは既存のデータを削除せず、新しい質問のみを追加します。');
-    console.log(`DATABASE_URL: ${process.env.DATABASE_URL?.replace(/\/\/.*@/, '//<hidden>@') || '未設定'}`);
-    
-    rl.question('\n実行しますか？ (yes/no): ', (answer) => {
-      if (answer.toLowerCase() === 'yes') {
-        rl.close();
-        seedProduction();
-      } else {
-        console.log('シード処理をキャンセルしました。');
-        rl.close();
-        process.exit(0);
-      }
-    });
-  });
+  console.log('🌱 本番環境用シードスクリプトを開始します...');
+  console.log('このスクリプトは既存のデータを削除せず、新しい質問のみを追加します。');
+  seedProduction();
 }
 
 export { seedProduction };
