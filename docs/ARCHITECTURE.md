@@ -125,7 +125,9 @@ oogiri-app/
 │   │   ├── 📁 db/                  # データベース関連
 │   │   │   ├── index.ts            # DB接続・設定
 │   │   │   ├── schema.ts           # Drizzleスキーマ定義
-│   │   │   └── seed.ts             # データシード
+│   │   │   ├── seed.ts             # 開発環境用データシード
+│   │   │   ├── seed-production.ts  # 本番環境用データシード
+│   │   │   └── seed-utils.ts       # シードユーティリティ関数
 │   │   ├── 📁 types/               # 型定義
 │   │   ├── auth.ts                 # NextAuth設定
 │   │   ├── auth-server.ts          # NextAuth v4 サーバー設定 (本番対応)
@@ -135,8 +137,9 @@ oogiri-app/
 │   │   ├── logger.ts               # 構造化ログシステム
 │   │   ├── game-logic.ts           # ゲームエンジン・ロジック
 │   │   ├── room-utils.ts           # ルーム関連ユーティリティ
-│   │   ├── sample-questions.ts     # サンプルお題データ
+│   │   ├── sample-questions.ts     # サンプルお題データ（30問）
 │   │   ├── seed-questions.ts       # お題シードユーティリティ
+│   │   ├── production-questions.ts # 本番用お題データ（100問）
 │   │   ├── utils.ts                # 汎用ユーティリティ
 │   └── middleware.ts               # Next.js ミドルウェア (Basic認証)
 ├── 📄 server.js                    # **カスタムサーバー (本番用)**
@@ -596,6 +599,11 @@ finished    // ゲーム終了 or 次ラウンド
   - ✅ ハートビート監視
   - ✅ 接続タイムアウト処理
 - ✅ 本番デプロイ対応 (Render.com)
+- ✅ データシード機能
+  - ✅ 開発環境用シード（既存データ削除）
+  - ✅ 本番環境用シード（既存データ保護）
+  - ✅ 重複チェック機能
+  - ✅ 100問の高品質な質問データ
 
 ### **🎨 UI/UX**
 - ✅ モダンデザイン (Tailwind CSS v4)
@@ -636,8 +644,17 @@ npm start               # server.js (port 3000)
 # スキーマ適用
 npm run db:push
 
-# お題データシード
-curl -X POST http://localhost:3000/api/seed
+# お題データシード（開発環境）
+npm run db:seed
+
+# お題データシード（本番環境）
+npm run db:seed:production
+
+# 現在の質問数確認
+npm run db:seed:check
+
+# デプロイ時セットアップ（本番用）
+npm run deploy:setup  # db:push → db:seed:production
 ```
 
 ---
