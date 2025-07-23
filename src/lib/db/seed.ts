@@ -1,3 +1,12 @@
+/**
+ * ⚠️ 警告: このスクリプトは開発環境専用です！
+ * 
+ * このスクリプトは既存の質問データを全て削除してから新しいデータを挿入します。
+ * 本番環境では絶対に使用しないでください。
+ * 
+ * 本番環境では `npm run db:seed:production` を使用してください。
+ */
+
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
@@ -16,13 +25,18 @@ const db = drizzle(pool);
 
 async function seed() {
   try {
-    console.log('🌱 Seeding database...');
+    console.log('🌱 Seeding database (DEVELOPMENT MODE)...');
+    
+    // 環境確認
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ エラー: 本番環境でこのスクリプトを実行することはできません！');
+      console.error('本番環境では npm run db:seed:production を使用してください。');
+      process.exit(1);
+    }
 
     // 既存のお題をクリア（開発環境のみ）
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Clearing existing questions...');
-      await db.delete(questions);
-    }
+    console.log('⚠️  警告: 既存の質問データを全て削除します...');
+    await db.delete(questions);
 
     // サンプルお題を挿入
     console.log('Inserting sample questions...');
@@ -53,7 +67,7 @@ async function seed() {
 }
 
 // スクリプトとして実行された場合のみシード実行
-if (require.main === module) {
+if (process.argv[1] === __filename) {
   seed();
 }
 

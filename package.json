@@ -13,7 +13,9 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/lib/db/seed.ts",
-    "deploy:setup": "npm run db:push && npm run db:seed"
+    "db:seed:production": "tsx src/lib/db/seed-production.ts",
+    "db:seed:check": "tsx -e \"import { getQuestionCount } from './src/lib/db/seed-utils'; getQuestionCount().then(count => console.log('現在の質問数:', count, '件')).catch(console.error).finally(() => process.exit())\"",
+    "deploy:setup": "npm run db:push && npm run db:seed:production"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
